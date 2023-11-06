@@ -6,9 +6,8 @@ const results = document.querySelector('.results');
 const error = document.querySelector('.error');
 const url = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
 
-let inputValue = input.value.trim();
-
 async function getData() {
+  let inputValue = input.value.trim();
   try {
     const response = await fetch(`${url}${inputValue}`);
 
@@ -24,64 +23,27 @@ async function getData() {
   }
 }
 
-// Function to show data
+submit.addEventListener('click', async () => {
+  // Clear old results
+  results.innerHTML = '';
 
-submit.addEventListener('click', () => {
   getData()
     .then((data) => {
       console.log(data);
-      error.classList.remove('show');
-      word.classList.remove('hide');
-      defContainer.classList.remove('hide');
-
-      word.innerHTML = `<div class="word">${data[0].word}</div>`;
-
       let definitions = data[0].meanings[0].definitions;
-
-      defContainer.innerHTML = definitions
+      let definitionsHTML = definitions
         .map((def) => {
           return `<li>${def.definition}</li>`;
         })
         .join('');
+
+      results.innerHTML = `
+          <div class="word">${data[0].word}</div>
+          <div class="phonetic">${data[0].phonetic}</div>
+          <ul class="definitions">${definitionsHTML}</ul>
+        `;
     })
-    .catch(() => {
-      error.classList.add('show');
-      word.classList.add('hide');
-      defContainer.classList.add('hide');
+    .catch((error) => {
+      error.innerHTML = `Error: ${error.message}`;
     });
 });
-
-/* Old Code
-submit.addEventListener('click', () => {
-  let inputValue = input.value;
-  console.log(inputValue);
-  fetch(`${url}${inputValue}`)
-    .then((response) => {
-      if (!response.ok) throw new Error('invalid');
-      return response.json();
-    })
-    .then((data) => {
-      console.log(data);
-      error.classList.remove('show');
-      word.classList.remove('hide');
-      defContainer.classList.remove('hide');
-
-      word.innerHTML = `
-      <div class="word">${data[0].word}</div>
-      `;
-
-      let definitions = data[0].meanings[0].definitions;
-
-      defContainer.innerHTML = definitions
-        .map((def) => {
-          return `<li>${def.definition}</li>`;
-        })
-        .join('');
-    })
-    .catch(() => {
-      error.classList.add('show');
-      word.classList.add('hide');
-      defContainer.classList.add('hide');
-    });
-});
-*/
